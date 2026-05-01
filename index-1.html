@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Links</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+  --text:#f0f0f0;--muted:#888;--hint:#555;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --accent:#7c6aff;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;
+  --radius:10px;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--sans);font-size:13px;color:var(--text);background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ── DESKTOP ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:200px;min-width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.logo{padding:16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.logo-mark{width:26px;height:26px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:13px;height:13px;fill:#fff}
+.logo-text{font-size:14px;font-weight:600;letter-spacing:-.3px}
+.sync-pill{margin-left:auto;width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.sync-pill.ok{background:var(--green)}.sync-pill.syncing{background:var(--yellow);animation:blink 1s infinite}.sync-pill.err{background:var(--red)}.sync-pill.local{background:var(--hint)}
+.sidebar-section{padding:10px 8px 4px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--hint);text-transform:uppercase}
+.cat-list{flex:1;overflow-y:auto;padding:0 6px}
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;cursor:pointer;border-radius:7px;font-size:12.5px;color:var(--muted);transition:all .1s;user-select:none;gap:6px}
+.cat-item:hover{background:var(--bg3);color:var(--text)}.cat-item.active{background:var(--bg4);color:var(--text);font-weight:500}
+.cat-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow:hidden}
+.cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cat-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-right{display:flex;align-items:center;gap:4px}
+.cat-count{font-size:10px;color:var(--hint);font-family:var(--mono)}
+.cat-del{opacity:0;font-size:10px;color:var(--hint);padding:2px 4px;border-radius:4px;line-height:1;transition:all .1s}
+.cat-item:hover .cat-del{opacity:1}.cat-del:hover{background:rgba(239,68,68,.15);color:var(--red)}
+.new-cat{display:flex;gap:5px;padding:8px;border-top:1px solid var(--border);margin-top:4px}
+.new-cat input{flex:1;padding:6px 8px;font-size:12px;font-family:var(--sans);border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--text);outline:none}
+.new-cat input:focus{border-color:var(--accent)}
+.new-cat button{padding:6px 9px;font-size:13px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;line-height:1}
+.sidebar-footer{padding:8px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.foot-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:12px;color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;font-family:var(--sans);transition:all .1s;text-align:left}
+.foot-btn:hover{background:var(--bg3);color:var(--text)}.foot-btn svg{width:13px;height:13px;flex-shrink:0;opacity:.7}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.search-wrap{position:relative;flex:1}
+.search-wrap input{width:100%;padding:8px 12px 8px 32px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-family:var(--sans);color:var(--text);outline:none;transition:border .1s}
+.search-wrap input:focus{border-color:var(--border2)}.search-wrap input::placeholder{color:var(--hint)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--hint);pointer-events:none;font-size:14px}
+.topbar-btns{display:flex;align-items:center;gap:6px}
+.btn-icon{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .1s;flex-shrink:0}
+.btn-icon:hover{border-color:var(--border2);color:var(--text);background:var(--bg4)}.btn-icon.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-icon svg{width:14px;height:14px}
+.btn-add{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-family:var(--sans);font-weight:500;cursor:pointer;transition:opacity .1s;white-space:nowrap}
+.btn-add:hover{opacity:.85}
+.content{flex:1;overflow-y:auto;padding:18px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-hdr h2{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.section-hdr span{font-size:11px;color:var(--hint);font-family:var(--mono)}
+.drag-hint{font-size:11px;color:var(--hint);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.link-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px;cursor:pointer;transition:all .1s;position:relative;display:flex;flex-direction:column;gap:7px}
+.link-card:hover{border-color:var(--border2);background:var(--bg3)}
+.card-actions{display:flex;gap:3px;position:absolute;top:9px;right:9px;opacity:0;transition:opacity .1s}
+.link-card:hover .card-actions{opacity:1}
+.card-btn{width:24px;height:24px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--muted);transition:all .1s}
+.card-btn:hover{color:var(--text)}.card-btn.del:hover{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.3)}
+.card-top{display:flex;align-items:flex-start;gap:8px}
+.card-ico{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+.card-title{font-size:12.5px;font-weight:500;flex:1;line-height:1.4;word-break:break-word;padding-right:60px}
+.card-url{font-family:var(--mono);font-size:10.5px;color:var(--hint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);color:var(--hint);width:fit-content;margin-top:auto}
+.card-tag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.drag-handle{position:absolute;bottom:8px;right:9px;color:var(--hint);font-size:10px;cursor:grab;opacity:0;transition:opacity .1s;user-select:none}
+.link-card:hover .drag-handle{opacity:.6}
+.link-card.dragging{opacity:.3;border-style:dashed}.link-card.drag-over{border-color:var(--accent);background:rgba(124,106,255,.06)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--hint);gap:10px}
+.empty-ico{font-size:28px;opacity:.3}.empty p{font-size:12px}
+.notes-panel{width:300px;min-width:300px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;transition:width .2s,min-width .2s;overflow:hidden}
+.notes-panel.closed{width:0;min-width:0}
+.notes-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.notes-hdr-left{display:flex;align-items:center;gap:8px}
+.notes-hdr-left span{font-size:13px;font-weight:600;letter-spacing:-.2px}
+.notes-tabs{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0}
+.note-tab{padding:4px 10px;border-radius:6px;font-size:11.5px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:transparent;font-family:var(--sans);transition:all .1s;white-space:nowrap}
+.note-tab:hover{border-color:var(--border2);color:var(--text)}.note-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.note-tab.add-tab{color:var(--hint)}.note-tab.del-tab{color:var(--hint);padding:4px 7px}
+.note-tab.del-tab:hover{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+.notes-body{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:10px}
+.note-editor{flex:1;width:100%;border:none;background:transparent;color:var(--text);font-family:var(--sans);font-size:12.5px;line-height:1.7;resize:none;outline:none;padding:2px}
+.note-editor::placeholder{color:var(--hint)}
+.notes-footer{padding:8px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.notes-footer span{font-size:10.5px;color:var(--hint);font-family:var(--mono)}
+.notes-save-btn{padding:5px 12px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-size:11.5px;font-family:var(--sans);font-weight:500;cursor:pointer}
+.notes-save-btn:hover{opacity:.85}
+
+/* ── MODALS (shared) ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:420px;max-width:92vw;box-shadow:0 16px 60px rgba(0,0,0,.5)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:18px;letter-spacing:-.2px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{padding:9px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12.5px;font-family:var(--sans);color:var(--text);background:var(--bg3);outline:none;transition:border .1s}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.field select option{background:var(--bg3)}
+.modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.btn-cancel{padding:8px 14px;border:1px solid var(--border2);border-radius:8px;background:transparent;font-size:12.5px;font-family:var(--sans);color:var(--muted);cursor:pointer}
+.btn-cancel:hover{background:var(--bg3)}
+.btn-save{padding:8px 16px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:12.5px;font-family:var(--sans);font-weight:500;cursor:pointer}
+.btn-save:hover{opacity:.85}
+
+/* ── SETUP ── */
+.setup-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.setup-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:30px;width:100%;max-width:450px;box-shadow:0 16px 60px rgba(0,0,0,.4)}
+.setup-box h2{font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.3px}
+.setup-box p{font-size:12.5px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.setup-steps{background:var(--bg3);border-radius:9px;padding:14px;margin-bottom:18px;font-size:12px;color:var(--muted);line-height:2}
+.setup-steps b{color:var(--text)}.setup-steps a{color:var(--accent);text-decoration:none}
+.sql-box{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:1.6;margin-bottom:18px;cursor:pointer;transition:border .1s;word-break:break-all}
+.sql-box:hover{border-color:var(--accent)}
+.setup-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.btn-skip{padding:8px 14px;border:1px solid var(--border2);border-radius:8px;background:transparent;font-size:12.5px;font-family:var(--sans);color:var(--muted);cursor:pointer}
+.btn-connect{padding:8px 18px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:12.5px;font-family:var(--sans);font-weight:500;cursor:pointer}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg4);color:var(--text);border:1px solid var(--border2);padding:8px 16px;border-radius:8px;font-size:12.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:400;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast.show{opacity:1}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+
+/* ══════════════════════════════════════════════════
+   MOBILE LAYOUT
+══════════════════════════════════════════════════ */
+@media(max-width:700px){
+  .app{display:none!important}
+
+  .mobile-app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:var(--bg);overflow:hidden}
+
+  /* top bar */
+  .m-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+  .m-topbar .logo-mark{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .m-topbar .logo-mark svg{width:14px;height:14px;fill:#fff}
+  .m-search{flex:1;position:relative}
+  .m-search input{width:100%;padding:9px 12px 9px 34px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:var(--sans);color:var(--text);outline:none}
+  .m-search input::placeholder{color:var(--hint)}
+  .m-search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--hint);font-size:15px;pointer-events:none}
+  .m-sync{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .m-sync.ok{background:var(--green)}.m-sync.syncing{background:var(--yellow);animation:blink 1s infinite}.m-sync.err{background:var(--red)}.m-sync.local{background:var(--hint)}
+
+  /* screens */
+  .m-screen{flex:1;overflow-y:auto;padding:14px 14px 80px;display:none}
+  .m-screen.active{display:block}
+
+  /* links screen */
+  .m-cat-scroll{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
+  .m-cat-scroll::-webkit-scrollbar{display:none}
+  .m-cat-chip{padding:6px 14px;border-radius:20px;font-size:12.5px;border:1px solid var(--border);color:var(--muted);background:transparent;white-space:nowrap;cursor:pointer;transition:all .1s;font-family:var(--sans)}
+  .m-cat-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+  .m-link-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .m-link-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px;display:flex;align-items:center;gap:12px;position:relative}
+  .m-link-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+  .m-link-info{flex:1;min-width:0}
+  .m-link-title{font-size:13.5px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-link-url{font-size:11px;color:var(--hint);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .m-link-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid var(--border);color:var(--hint);margin-top:4px}
+  .m-link-actions{display:flex;gap:4px;flex-shrink:0}
+  .m-action-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--muted)}
+  .m-action-btn.del{color:var(--red)}
+
+  /* add screen */
+  .m-add-form{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px}
+  .m-add-form h3{font-size:15px;font-weight:600;margin-bottom:16px}
+  .m-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .m-field label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .m-field input,.m-field select{padding:11px 13px;border:1px solid var(--border2);border-radius:9px;font-size:14px;font-family:var(--sans);color:var(--text);background:var(--bg3);outline:none;width:100%}
+  .m-field input:focus,.m-field select:focus{border-color:var(--accent)}
+  .m-field select option{background:var(--bg3)}
+  .m-submit{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-family:var(--sans);font-weight:600;cursor:pointer;margin-top:4px}
+
+  /* cat management */
+  .m-cat-manage{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:12px}
+  .m-cat-manage h4{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+  .m-cat-row{display:flex;gap:8px}
+  .m-cat-row input{flex:1;padding:9px 11px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:var(--sans);color:var(--text);background:var(--bg3);outline:none}
+  .m-cat-row input:focus{border-color:var(--accent)}
+  .m-cat-row button{padding:9px 14px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  .m-cat-chips-edit{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .m-cat-chip-edit{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-size:12px;color:var(--muted)}
+  .m-cat-chip-del{color:var(--hint);cursor:pointer;font-size:11px}
+  .m-cat-chip-del:hover{color:var(--red)}
+
+  /* notes screen */
+  .m-notes-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none}
+  .m-notes-tabs::-webkit-scrollbar{display:none}
+  .m-note-tab{padding:6px 14px;border-radius:20px;font-size:12.5px;border:1px solid var(--border);color:var(--muted);background:transparent;white-space:nowrap;cursor:pointer;font-family:var(--sans)}
+  .m-note-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+  .m-note-editor{width:100%;min-height:300px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;border-radius:12px;padding:14px;outline:none;resize:none;margin-top:4px}
+  .m-note-editor::placeholder{color:var(--hint)}
+  .m-notes-actions{display:flex;gap:8px;margin-top:10px}
+  .m-note-save{flex:1;padding:11px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-size:13.5px;font-family:var(--sans);font-weight:600;cursor:pointer}
+  .m-note-add{padding:11px 14px;border:1px solid var(--border2);border-radius:9px;background:transparent;color:var(--muted);font-size:13.5px;font-family:var(--sans);cursor:pointer}
+
+  /* settings screen */
+  .m-settings-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+  .m-settings-section h4{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+  .m-set-btn{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;width:100%}
+  .m-set-btn:last-child{border-bottom:none;padding-bottom:0}
+  .m-set-btn svg{width:15px;height:15px;color:var(--muted);flex-shrink:0}
+  .m-set-btn span{font-size:13.5px;color:var(--text)}
+  .m-set-btn small{margin-left:auto;font-size:11px;color:var(--hint)}
+  .m-sync-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+  .m-sync-row:last-child{border-bottom:none}
+  .m-sync-label{font-size:13px;color:var(--muted)}
+  .m-sync-val{font-size:12px;color:var(--hint);font-family:var(--mono);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* bottom nav */
+  .m-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:50}
+  .m-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;color:var(--hint);transition:color .1s;border:none;background:transparent;font-family:var(--sans)}
+  .m-nav-item.active{color:var(--accent)}
+  .m-nav-item svg{width:20px;height:20px}
+  .m-nav-item span{font-size:10px;font-weight:500}
+  .m-nav-add{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;border:none;background:transparent;font-family:var(--sans)}
+  .m-nav-add-ico{width:44px;height:44px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 4px 20px rgba(124,106,255,.4)}
+  .m-nav-add-ico svg{width:22px;height:22px;color:#fff}
+  .m-nav-add span{font-size:10px;font-weight:500;color:var(--hint)}
+
+  /* mobile setup */
+  .setup-box{padding:24px}
+  .setup-box h2{font-size:16px}
+
+  /* toast on mobile higher up */
+  .toast{bottom:80px}
+}
+
+@media(min-width:701px){
+  .mobile-app{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="mobile-app" id="mapp"></div>
+<div class="toast" id="toast"></div>
+<script>
+const COLORS=['#7c6aff','#14b8a6','#f97316','#ec4899','#84cc16','#3b82f6','#a855f7','#f59e0b','#ef4444','#06b6d4'];
+const LS_LINKS='lo_links',LS_CATS='lo_cats',LS_SB_URL='lo_sb_url',LS_SB_KEY='lo_sb_key',LS_NOTES='lo_notes',LS_NOTES_OPEN='lo_notes_open',LS_NOTE_TAB='lo_note_tab';
+let sb=null,syncStatus='local';
+function initSB(url,key){try{sb=supabase.createClient(url,key);return true}catch{return false}}
+async function sbLoad(){if(!sb)return null;try{const{data,error}=await sb.from('lo_data').select('*').eq('id','main').single();if(error&&error.code!=='PGRST116')throw error;return data}catch{return null}}
+async function sbSave(){if(!sb)return;setSyncStatus('syncing');try{const{error}=await sb.from('lo_data').upsert({id:'main',links:state.links,categories:state.categories,notes:state.notes,updated_at:new Date().toISOString()});if(error)throw error;setSyncStatus('ok')}catch{setSyncStatus('err')}}
+function setSyncStatus(s){syncStatus=s;['syncDot','mSyncDot'].forEach(id=>{const d=document.getElementById(id);if(d)d.className=(d.id==='syncDot'?'sync-pill ':'m-sync ')+s})}
+function loadLocal(){try{return{links:JSON.parse(localStorage.getItem(LS_LINKS)||'[]'),categories:JSON.parse(localStorage.getItem(LS_CATS)||'["All"]'),notes:JSON.parse(localStorage.getItem(LS_NOTES)||'{"General":""}')}}catch{return{links:[],categories:['All'],notes:{'General':''}}}}
+function saveLocal(){localStorage.setItem(LS_LINKS,JSON.stringify(state.links));localStorage.setItem(LS_CATS,JSON.stringify(state.categories));localStorage.setItem(LS_NOTES,JSON.stringify(state.notes))}
+async function save(){saveLocal();await sbSave()}
+const stored=loadLocal();
+const firstVisit=!localStorage.getItem(LS_NOTES_OPEN);
+if(firstVisit)localStorage.setItem(LS_NOTES_OPEN,'1');
+let state={
+  links:stored.links.length?stored.links:[{id:1,title:'Anthropic',url:'https://anthropic.com',category:'AI'},{id:2,title:'Claude',url:'https://claude.ai',category:'AI'},{id:3,title:'GitHub',url:'https://github.com',category:'Dev'},{id:4,title:'MDN Web Docs',url:'https://developer.mozilla.org',category:'Dev'}],
+  categories:stored.categories.length>1?stored.categories:['All','AI','Dev'],
+  notes:stored.notes||{'General':''},
+  activeCategory:'All',search:'',modal:null,editId:null,
+  notesOpen:firstVisit?true:localStorage.getItem(LS_NOTES_OPEN)==='1',
+  activeNote:localStorage.getItem(LS_NOTE_TAB)||'General',
+  showSetup:false,
+  mScreen:'links', // links | add | notes | settings
+};
+let nextId=state.links.reduce((m,l)=>Math.max(m,l.id),0)+1;
+
+async function init(){
+  const url=localStorage.getItem(LS_SB_URL),key=localStorage.getItem(LS_SB_KEY);
+  if(url&&url!=='__skipped__'&&key){initSB(url,key);setSyncStatus('syncing');const r=await sbLoad();if(r){state.links=r.links||state.links;state.categories=r.categories||state.categories;state.notes=r.notes||state.notes;nextId=state.links.reduce((m,l)=>Math.max(m,l.id),0)+1;saveLocal();setSyncStatus('ok')}else setSyncStatus('err')}
+  else if(!url){state.showSetup=true}
+  if(!state.notes[state.activeNote])state.activeNote=Object.keys(state.notes)[0]||'General';
+  render();renderMobile();
+}
+
+function getColor(cat){const i=state.categories.filter(c=>c!=='All').indexOf(cat);return COLORS[Math.abs(i)%COLORS.length]}
+function domainOf(url){try{return new URL(url).hostname.replace('www.','')}catch{return url}}
+function initials(t){return t.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?'}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escS(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800)}
+function filtered(){let l=state.links;if(state.activeCategory!=='All')l=l.filter(x=>x.category===state.activeCategory);if(state.search){const q=state.search.toLowerCase();l=l.filter(x=>x.title.toLowerCase().includes(q)||x.url.toLowerCase().includes(q)||x.category.toLowerCase().includes(q))}return l}
+function noteCount(){return(state.notes[state.activeNote]||'').trim().split(/\s+/).filter(Boolean).length}
+
+// ── DESKTOP RENDER ────────────────────────────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  if(state.showSetup){app.innerHTML=renderSetup();return}
+  const cats=state.categories,links=filtered(),noteTabs=Object.keys(state.notes);
+  app.innerHTML=`
+  <div class="sidebar">
+    <div class="logo"><div class="logo-mark"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="7" y="1" width="4" height="4" rx="1"/><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="7" y="7" width="4" height="4" rx="1"/></svg></div><span class="logo-text">Links</span><span class="sync-pill ${syncStatus}" id="syncDot"></span></div>
+    <div class="sidebar-section">Collections</div>
+    <div class="cat-list">${cats.map(cat=>{const count=cat==='All'?state.links.length:state.links.filter(l=>l.category===cat).length;const color=cat==='All'?'var(--hint)':getColor(cat);return`<div class="cat-item${state.activeCategory===cat?' active':''}" onclick="setCategory('${escS(cat)}')"><span class="cat-left"><span class="cat-dot" style="background:${color}"></span><span class="cat-name">${escH(cat)}</span></span><span class="cat-right">${cat!=='All'?`<span class="cat-del" onclick="event.stopPropagation();deleteCategory('${escS(cat)}')">✕</span>`:''}<span class="cat-count">${count}</span></span></div>`;}).join('')}</div>
+    <div class="new-cat"><input id="newCatInput" placeholder="New collection…" onkeydown="if(event.key==='Enter')addCategory()"><button onclick="addCategory()">+</button></div>
+    <div class="sidebar-footer">
+      <button class="foot-btn" onclick="exportData()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M3 12h10"/></svg>Export</button>
+      <label class="foot-btn" style="cursor:pointer"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14V6M5 9l3-3 3 3M3 4h10"/></svg>Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      <button class="foot-btn" onclick="showSyncSetup()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0 1 10.5-4M14 8a6 6 0 0 1-10.5 4"/><path d="M12 4l.5 2.5-2.5.5M4 12l-.5-2.5 2.5-.5"/></svg>${sb?'Sync settings':'Connect sync'}</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="search-wrap"><span class="search-icon">⌕</span><input placeholder="Search links…" value="${escH(state.search)}" oninput="setSearch(this.value)"></div>
+      <div class="topbar-btns">
+        <div class="btn-icon${state.notesOpen?' active':''}" onclick="toggleNotes()" title="Notes"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg></div>
+        <button class="btn-add" onclick="openModal()">+ Add link</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-hdr"><h2>${escH(state.activeCategory)}</h2><span>${filtered().length} link${filtered().length!==1?'s':''}</span></div>
+      ${state.activeCategory==='All'&&state.links.length>1?'<div class="drag-hint">⠿ Drag to reorder</div>':''}
+      ${links.length===0?'<div class="empty"><div class="empty-ico">◻</div><p>No links here yet.</p></div>':''}
+      <div class="grid">${links.map(link=>{const color=getColor(link.category),draggable=state.activeCategory==='All';return`<div class="link-card" data-id="${link.id}" ${draggable?'draggable="true"':''} onclick="openLink('${escS(link.url)}')" ${draggable?`ondragstart="onDragStart(event,${link.id})" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${link.id})" ondragend="onDragEnd(event)"`:''}>
+        <div class="card-actions"><div class="card-btn" onclick="event.stopPropagation();copyUrl('${escS(link.url)}')">⎘</div><div class="card-btn" onclick="event.stopPropagation();openEditModal(${link.id})">✎</div><div class="card-btn del" onclick="event.stopPropagation();deleteLink(${link.id})">✕</div></div>
+        <div class="card-top"><div class="card-ico" style="background:${color}20;color:${color};border:1px solid ${color}25">${escH(initials(link.title))}</div><div class="card-title">${escH(link.title)}</div></div>
+        <div class="card-url">${escH(domainOf(link.url))}</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:${color}"></span>${escH(link.category)}</div>
+        ${draggable?'<div class="drag-handle">⠿⠿</div>':''}
+      </div>`;}).join('')}</div>
+    </div>
+  </div>
+  <div class="notes-panel${state.notesOpen?'':' closed'}">
+    <div class="notes-hdr"><div class="notes-hdr-left"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/></svg><span>Notes</span></div><div class="btn-icon" onclick="toggleNotes()" style="width:26px;height:26px;border-radius:6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg></div></div>
+    <div class="notes-tabs">${noteTabs.map(tab=>`<button class="note-tab${state.activeNote===tab?' active':''}" onclick="setNoteTab('${escS(tab)}')">${escH(tab)}</button>`).join('')}<button class="note-tab add-tab" onclick="addNoteTab()">+</button>${noteTabs.length>1?`<button class="note-tab del-tab" onclick="delNoteTab('${escS(state.activeNote)}')">✕</button>`:''}</div>
+    <div class="notes-body"><textarea class="note-editor" id="noteEditor" placeholder="Start typing…" oninput="onNoteInput(this.value)">${escH(state.notes[state.activeNote]||'')}</textarea></div>
+    <div class="notes-footer"><span>${noteCount()} words</span><button class="notes-save-btn" onclick="saveNotes()">Save ↑</button></div>
+  </div>
+  ${state.modal?renderModal():''}`;
+}
+
+// ── MOBILE RENDER ─────────────────────────────────────────────────────────────
+function renderMobile(){
+  const mapp=document.getElementById('mapp');
+  if(state.showSetup){document.getElementById('app').innerHTML=renderSetup();mapp.innerHTML='';return}
+  const cats=state.categories,links=filtered(),noteTabs=Object.keys(state.notes);
+  const navItems=[
+    {id:'links',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,label:'Links'},
+    {id:'add',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>`,label:'Add',isAdd:true},
+    {id:'notes',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h7"/></svg>`,label:'Notes'},
+    {id:'settings',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,label:'Settings'},
+  ];
+
+  mapp.innerHTML=`
+  <div class="m-topbar">
+    <div class="logo-mark"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="7" y="1" width="4" height="4" rx="1"/><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="7" y="7" width="4" height="4" rx="1"/></svg></div>
+    <div class="m-search"><span class="m-search-ico">⌕</span><input placeholder="Search links…" value="${escH(state.search)}" oninput="setSearch(this.value);renderMobile()"></div>
+    <span class="m-sync ${syncStatus}" id="mSyncDot"></span>
+  </div>
+
+  <!-- LINKS SCREEN -->
+  <div class="m-screen${state.mScreen==='links'?' active':''}" id="mLinks">
+    <div class="m-cat-scroll">
+      ${cats.map(cat=>`<button class="m-cat-chip${state.activeCategory===cat?' active':''}" onclick="setCategory('${escS(cat)}');renderMobile()">${escH(cat)}</button>`).join('')}
+    </div>
+    ${links.length===0?`<div class="empty" style="height:160px"><div class="empty-ico">◻</div><p>No links here yet.</p></div>`:''}
+    <div class="m-link-list">
+      ${links.map(link=>{const color=getColor(link.category);return`<div class="m-link-item">
+        <div class="m-link-ico" style="background:${color}20;color:${color};border:1px solid ${color}25" onclick="openLink('${escS(link.url)}')">${escH(initials(link.title))}</div>
+        <div class="m-link-info" onclick="openLink('${escS(link.url)}')">
+          <div class="m-link-title">${escH(link.title)}</div>
+          <div class="m-link-url">${escH(domainOf(link.url))}</div>
+          <div class="m-link-tag"><span style="width:5px;height:5px;border-radius:50%;background:${color};display:inline-block;margin-right:3px"></span>${escH(link.category)}</div>
+        </div>
+        <div class="m-link-actions">
+          <div class="m-action-btn" onclick="copyUrl('${escS(link.url)}')">⎘</div>
+          <div class="m-action-btn del" onclick="deleteLink(${link.id});renderMobile()">✕</div>
+        </div>
+      </div>`;}).join('')}
+    </div>
+  </div>
+
+  <!-- ADD SCREEN -->
+  <div class="m-screen${state.mScreen==='add'?' active':''}" id="mAdd">
+    <div class="m-add-form">
+      <h3>${state.editId!==null?'Edit link':'Add new link'}</h3>
+      <div class="m-field"><label>URL</label><input id="ma-url" placeholder="https://…" value="${escH(state.editId!==null?(state.links.find(l=>l.id===state.editId)||{}).url||'':'')}" onblur="mAutoTitle()"></div>
+      <div class="m-field"><label>Title</label><input id="ma-title" placeholder="e.g. Hacker News" value="${escH(state.editId!==null?(state.links.find(l=>l.id===state.editId)||{}).title||'':'')}"></div>
+      <div class="m-field"><label>Collection</label>
+        <select id="ma-cat">${state.categories.filter(c=>c!=='All').map(c=>`<option${state.activeCategory===c&&c!=='All'?' selected':''}>${escH(c)}</option>`).join('')}</select>
+      </div>
+      <button class="m-submit" onclick="mSaveLink()">${state.editId!==null?'Update link':'Save link'}</button>
+      ${state.editId!==null?`<button class="m-submit" style="background:var(--bg3);color:var(--muted);margin-top:8px" onclick="state.editId=null;renderMobile()">Cancel</button>`:''}
+    </div>
+    <div class="m-cat-manage">
+      <h4>Collections</h4>
+      <div class="m-cat-row"><input id="mNewCat" placeholder="New collection…" onkeydown="if(event.key==='Enter')mAddCat()"><button onclick="mAddCat()">+</button></div>
+      <div class="m-cat-chips-edit">${cats.filter(c=>c!=='All').map(c=>`<div class="m-cat-chip-edit"><span class="cat-dot" style="background:${getColor(c)};width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px"></span>${escH(c)}<span class="m-cat-chip-del" onclick="deleteCategory('${escS(c)}');renderMobile()">✕</span></div>`).join('')}</div>
+    </div>
+  </div>
+
+  <!-- NOTES SCREEN -->
+  <div class="m-screen${state.mScreen==='notes'?' active':''}" id="mNotes">
+    <div class="m-notes-tabs">
+      ${noteTabs.map(tab=>`<button class="m-note-tab${state.activeNote===tab?' active':''}" onclick="mSetNoteTab('${escS(tab)}')">${escH(tab)}</button>`).join('')}
+      <button class="m-note-tab" onclick="mAddNoteTab()" style="color:var(--hint)">+</button>
+    </div>
+    <textarea class="m-note-editor" id="mNoteEditor" placeholder="Start typing your notes…" oninput="onNoteInput(this.value)">${escH(state.notes[state.activeNote]||'')}</textarea>
+    <div class="m-notes-actions">
+      <button class="m-note-save" onclick="mSaveNotes()">Save notes ↑</button>
+      ${noteTabs.length>1?`<button class="m-note-add" onclick="mDelNoteTab('${escS(state.activeNote)}')">Delete</button>`:''}
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div class="m-screen${state.mScreen==='settings'?' active':''}" id="mSettings">
+    <div class="m-settings-section">
+      <h4>Sync</h4>
+      <div class="m-sync-row"><span class="m-sync-label">Status</span><span class="m-sync-val">${{local:'Local only',syncing:'Syncing…',ok:'Synced ✓',err:'Error — check credentials'}[syncStatus]||syncStatus}</span></div>
+      <div class="m-sync-row"><span class="m-sync-label">URL</span><span class="m-sync-val">${localStorage.getItem(LS_SB_URL)||'Not set'}</span></div>
+      <div onclick="showSyncSetup()" class="m-set-btn" style="margin-top:8px;border-bottom:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 13.5-5.8M20 12a8 8 0 0 1-13.5 5.8"/><path d="M16 6l.5 3.5-3.5.5M8 18l-.5-3.5 3.5-.5"/></svg><span>${sb?'Update sync settings':'Connect sync'}</span></div>
+    </div>
+    <div class="m-settings-section">
+      <h4>Data</h4>
+      <div class="m-set-btn" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13M7 11l5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Export backup JSON</span></div>
+      <label class="m-set-btn" style="cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V8M7 13l5-5 5 5M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg><span>Import backup JSON</span><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+    </div>
+    <div class="m-settings-section">
+      <h4>Stats</h4>
+      <div class="m-sync-row"><span class="m-sync-label">Total links</span><span class="m-sync-val">${state.links.length}</span></div>
+      <div class="m-sync-row"><span class="m-sync-label">Collections</span><span class="m-sync-val">${state.categories.length-1}</span></div>
+      <div class="m-sync-row"><span class="m-sync-label">Notes</span><span class="m-sync-val">${Object.keys(state.notes).length} tab${Object.keys(state.notes).length!==1?'s':''}</span></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="m-nav">
+    <button class="m-nav-item${state.mScreen==='links'?' active':''}" onclick="state.mScreen='links';renderMobile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Links</span>
+    </button>
+    <button class="m-nav-add" onclick="state.mScreen='add';state.editId=null;renderMobile()">
+      <div class="m-nav-add-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></div>
+      <span>Add</span>
+    </button>
+    <button class="m-nav-item${state.mScreen==='notes'?' active':''}" onclick="state.mScreen='notes';renderMobile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h7"/></svg>
+      <span>Notes</span>
+    </button>
+    <button class="m-nav-item${state.mScreen==='settings'?' active':''}" onclick="state.mScreen='settings';renderMobile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>`;
+}
+
+function renderSetup(){
+  const sql='create table if not exists lo_data (id text primary key, links jsonb, categories jsonb, notes jsonb, updated_at timestamptz); alter table lo_data enable row level security; create policy "public" on lo_data for all using (true) with check (true);';
+  return`<div class="setup-screen"><div class="setup-box"><h2>Connect cloud sync</h2><p>Sync links and notes across all devices. Free with Supabase.</p><div class="setup-steps"><b>2 min setup:</b><br>1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → New project<br>2. SQL Editor → paste &amp; run SQL below<br>3. Settings → API → copy URL + publishable key</div><div class="field"><label>SQL — click to copy</label><div class="sql-box" onclick="copySQLText()" title="Click to copy">${sql}</div></div><div class="field"><label>Project URL</label><input id="sb-url" placeholder="https://xxxx.supabase.co" value="${localStorage.getItem(LS_SB_URL)||''}"></div><div class="field"><label>Publishable Key</label><input id="sb-key" placeholder="sb_publishable_…" value="${localStorage.getItem(LS_SB_KEY)||''}"></div><div class="setup-actions"><button class="btn-skip" onclick="skipSetup()">Use offline</button><button class="btn-connect" onclick="connectSupabase()">Connect &amp; Sync →</button></div></div></div>`;
+}
+function renderModal(){
+  const isEdit=state.editId!==null,link=isEdit?state.links.find(l=>l.id===state.editId):null,cats=state.categories.filter(c=>c!=='All');
+  return`<div class="overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><h3>${isEdit?'Edit link':'Add new link'}</h3><div class="field"><label>Title</label><input id="m-title" value="${escH(link?link.title:'')}" placeholder="e.g. Hacker News"></div><div class="field"><label>URL</label><input id="m-url" value="${escH(link?link.url:'')}" placeholder="https://…" onblur="autoFillTitle()"></div><div class="field"><label>Collection</label><select id="m-cat">${cats.length?cats.map(c=>`<option${(link&&link.category===c)||(!link&&state.activeCategory===c&&c!=='All')?' selected':''}>${escH(c)}</option>`).join(''):'<option>Uncategorized</option>'}</select></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveLink()">Save</button></div></div></div>`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+window.setCategory=c=>{state.activeCategory=c;render()}
+window.setSearch=v=>{state.search=v;render()}
+window.openModal=()=>{state.modal=true;state.editId=null;render();setTimeout(()=>document.getElementById('m-url')?.focus(),50)}
+window.openEditModal=id=>{state.modal=true;state.editId=id;render()}
+window.closeModal=()=>{state.modal=null;state.editId=null;render()}
+window.openLink=url=>window.open(url,'_blank')
+window.copyUrl=url=>navigator.clipboard.writeText(url).then(()=>showToast('Copied!')).catch(()=>showToast(url))
+window.deleteLink=id=>{state.links=state.links.filter(l=>l.id!==id);save();showToast('Removed')}
+window.deleteCategory=cat=>{if(state.links.some(l=>l.category===cat)){showToast('Remove links from "'+cat+'" first');return}state.categories=state.categories.filter(c=>c!==cat);if(state.activeCategory===cat)state.activeCategory='All';save()}
+window.autoFillTitle=()=>{const t=document.getElementById('m-title'),u=document.getElementById('m-url');if(t&&u&&!t.value.trim()&&u.value.trim()){try{t.value=new URL(u.value).hostname.replace('www.','')}catch{}}}
+window.saveLink=()=>{const title=(document.getElementById('m-title').value||'').trim();let url=(document.getElementById('m-url').value||'').trim();const cat=document.getElementById('m-cat').value;if(!url){showToast('Enter a URL');return}if(!url.startsWith('http'))url='https://'+url;if(state.editId!==null){const l=state.links.find(x=>x.id===state.editId);if(l){l.title=title||domainOf(url);l.url=url;l.category=cat}}else{state.links.push({id:nextId++,title:title||domainOf(url),url,category:cat});if(state.activeCategory!==cat&&state.activeCategory!=='All')state.activeCategory=cat}save();closeModal();showToast(state.editId!==null?'Updated':'Saved')}
+window.addCategory=()=>{const inp=document.getElementById('newCatInput'),v=(inp?inp.value:'').trim();if(v&&!state.categories.includes(v)){state.categories.push(v);state.activeCategory=v;save()}render()}
+
+// mobile-specific actions
+window.mSaveLink=()=>{
+  let url=(document.getElementById('ma-url').value||'').trim();
+  const title=(document.getElementById('ma-title').value||'').trim();
+  const cat=document.getElementById('ma-cat').value;
+  if(!url){showToast('Enter a URL');return}
+  if(!url.startsWith('http'))url='https://'+url;
+  if(state.editId!==null){const l=state.links.find(x=>x.id===state.editId);if(l){l.title=title||domainOf(url);l.url=url;l.category=cat}}
+  else{state.links.push({id:nextId++,title:title||domainOf(url),url,category:cat})}
+  state.editId=null;save();showToast('Saved!');state.mScreen='links';renderMobile();
+}
+window.mAutoTitle=()=>{const u=document.getElementById('ma-url'),t=document.getElementById('ma-title');if(u&&t&&!t.value.trim()&&u.value.trim()){try{t.value=new URL(u.value).hostname.replace('www.','')}catch{}}}
+window.mAddCat=()=>{const inp=document.getElementById('mNewCat'),v=(inp?inp.value:'').trim();if(v&&!state.categories.includes(v)){state.categories.push(v);save()}renderMobile()}
+window.mSetNoteTab=tab=>{const e=document.getElementById('mNoteEditor');if(e)state.notes[state.activeNote]=e.value;state.activeNote=tab;localStorage.setItem(LS_NOTE_TAB,tab);renderMobile()}
+window.mAddNoteTab=()=>{const name=prompt('Note name:');if(!name||state.notes[name]!==undefined)return;const e=document.getElementById('mNoteEditor');if(e)state.notes[state.activeNote]=e.value;state.notes[name]='';state.activeNote=name;localStorage.setItem(LS_NOTE_TAB,name);save();renderMobile()}
+window.mDelNoteTab=tab=>{if(Object.keys(state.notes).length<=1){showToast("Can't delete last note");return}if(!confirm('Delete "'+tab+'"?'))return;delete state.notes[tab];state.activeNote=Object.keys(state.notes)[0];save();renderMobile()}
+window.mSaveNotes=()=>{const e=document.getElementById('mNoteEditor');if(e)state.notes[state.activeNote]=e.value;save();showToast('Notes saved')}
+
+// shared notes
+window.toggleNotes=()=>{state.notesOpen=!state.notesOpen;localStorage.setItem(LS_NOTES_OPEN,state.notesOpen?'1':'0');render()}
+window.setNoteTab=tab=>{const e=document.getElementById('noteEditor');if(e)state.notes[state.activeNote]=e.value;state.activeNote=tab;localStorage.setItem(LS_NOTE_TAB,tab);render()}
+window.addNoteTab=()=>{const name=prompt('Note name:');if(!name||state.notes[name]!==undefined)return;const e=document.getElementById('noteEditor');if(e)state.notes[state.activeNote]=e.value;state.notes[name]='';state.activeNote=name;localStorage.setItem(LS_NOTE_TAB,name);save();render()}
+window.delNoteTab=tab=>{if(Object.keys(state.notes).length<=1){showToast("Can't delete last note");return}if(!confirm('Delete "'+tab+'"?'))return;delete state.notes[tab];state.activeNote=Object.keys(state.notes)[0];save();render()}
+window.onNoteInput=val=>{state.notes[state.activeNote]=val;const f=document.querySelector('.notes-footer span');if(f)f.textContent=val.trim().split(/\s+/).filter(Boolean).length+' words'}
+window.saveNotes=()=>{const e=document.getElementById('noteEditor');if(e)state.notes[state.activeNote]=e.value;save();showToast('Notes saved')}
+window.exportData=()=>{const e=document.getElementById('noteEditor')||document.getElementById('mNoteEditor');if(e)state.notes[state.activeNote]=e.value;const blob=new Blob([JSON.stringify({links:state.links,categories:state.categories,notes:state.notes,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='links-backup.json';a.click();showToast('Exported!')}
+window.importData=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.links&&Array.isArray(data.links)){state.links=data.links;if(data.categories)state.categories=data.categories;if(data.notes)state.notes=data.notes;nextId=state.links.reduce((m,l)=>Math.max(m,l.id),0)+1;save();showToast('Imported '+data.links.length+' links');render();renderMobile()}}catch{showToast('Invalid file')}}
+window.showSyncSetup=()=>{state.showSetup=true;render();renderMobile()}
+window.skipSetup=()=>{localStorage.setItem(LS_SB_URL,'__skipped__');state.showSetup=false;render();renderMobile()}
+window.connectSupabase=async()=>{const url=(document.getElementById('sb-url').value||'').trim(),key=(document.getElementById('sb-key').value||'').trim();if(!url||!key){showToast('Fill both fields');return}localStorage.setItem(LS_SB_URL,url);localStorage.setItem(LS_SB_KEY,key);if(!initSB(url,key)){showToast('Invalid credentials');return}state.showSetup=false;setSyncStatus('syncing');render();renderMobile();const r=await sbLoad();if(r&&r.links&&r.links.length>0){const rIds=new Set(r.links.map(l=>l.id));state.links=[...r.links,...state.links.filter(l=>!rIds.has(l.id))];state.categories=r.categories||state.categories;state.notes=r.notes||state.notes;nextId=state.links.reduce((m,l)=>Math.max(m,l.id),0)+1;saveLocal()}await sbSave();showToast('Connected & synced!');render();renderMobile()}
+window.copySQLText=()=>{navigator.clipboard.writeText('create table if not exists lo_data (id text primary key, links jsonb, categories jsonb, notes jsonb, updated_at timestamptz); alter table lo_data enable row level security; create policy "public" on lo_data for all using (true) with check (true);').then(()=>showToast('SQL copied!'))}
+
+// drag (desktop only)
+let dragSrcId=null;
+window.onDragStart=(e,id)=>{dragSrcId=id;e.dataTransfer.effectAllowed='move';setTimeout(()=>e.target.closest('.link-card')?.classList.add('dragging'),0)}
+window.onDragOver=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';e.target.closest('.link-card')?.classList.add('drag-over')}
+window.onDragLeave=e=>{e.target.closest('.link-card')?.classList.remove('drag-over')}
+window.onDrop=(e,tid)=>{e.preventDefault();e.stopPropagation();e.target.closest('.link-card')?.classList.remove('drag-over');if(dragSrcId===null||dragSrcId===tid)return;const fi=state.links.findIndex(l=>l.id===dragSrcId),ti=state.links.findIndex(l=>l.id===tid);if(fi===-1||ti===-1)return;const moved=state.links.splice(fi,1)[0];state.links.splice(ti,0,moved);save();render()}
+window.onDragEnd=()=>{dragSrcId=null;document.querySelectorAll('.link-card').forEach(c=>c.classList.remove('dragging','drag-over'))}
+
+init();
+</script>
+</body>
+</html>
