@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)file:///C:/Users/User/Desktop/link-organizer.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Organizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./Link Organizer_files/css2" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff;--bg2:#f5f5f4;--bg3:#efefed;
+    --text:#1a1a18;--muted:#6b6b67;--hint:#a8a8a4;
+    --border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);
+    --radius:12px;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1c1c1a;--bg2:#242422;--bg3:#2c2c2a;
+      --text:#f0f0ec;--muted:#8a8a86;--hint:#5a5a56;
+      --border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.18);
+    }
+    .icon-btn.del:hover{background:#3b1f1f!important;color:#f87171!important;border-color:#5a2a2a!important}
+  }
+  body{font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg3);min-height:100vh}
+  .app{display:flex;height:100vh;overflow:hidden}
+  .sidebar{width:210px;min-width:210px;background:var(--bg);border-right:0.5px solid var(--border);display:flex;flex-direction:column;padding:20px 0;overflow-y:auto}
+  .logo{font-size:15px;font-weight:500;padding:0 18px 18px;color:var(--text);border-bottom:0.5px solid var(--border);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .logo-icon{width:22px;height:22px;background:var(--text);border-radius:6px;display:flex;align-items:center;justify-content:center}
+  .logo-icon svg{width:12px;height:12px;fill:var(--bg)}
+  .sidebar-title{font-size:10px;font-weight:500;letter-spacing:.1em;color:var(--hint);padding:0 18px 8px;text-transform:uppercase}
+  .cat-item{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;cursor:pointer;border-radius:7px;margin:0 6px;font-size:13px;color:var(--muted);transition:background .12s,color .12s;user-select:none}
+  .cat-item:hover,.cat-item.active{background:var(--bg2);color:var(--text)}
+  .cat-item.active{font-weight:500}
+  .cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-right:8px}
+  .cat-count{font-size:11px;color:var(--hint);font-family:var(--mono)}
+  .cat-label{display:flex;align-items:center;flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .cat-del{opacity:0;font-size:11px;color:var(--hint);padding:1px 4px;border-radius:4px;transition:opacity .12s,background .12s}
+  .cat-item:hover .cat-del{opacity:1}
+  .cat-del:hover{background:rgba(239,68,68,.12);color:#ef4444}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--bg);border-bottom:0.5px solid var(--border)}
+  .search-wrap{position:relative;flex:1}
+  .search-wrap input{width:100%;padding:8px 12px 8px 34px;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none;transition:border .12s}
+  .search-wrap input:focus{border-color:var(--border2)}
+  .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--hint);pointer-events:none;font-size:15px}
+  .btn-add{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--text);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-family:var(--sans);font-weight:500;cursor:pointer;white-space:nowrap;transition:opacity .12s}
+  .btn-add:hover{opacity:.82}
+  .grid-wrap{flex:1;overflow-y:auto;padding:20px}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .section-header h2{font-size:15px;font-weight:500}
+  .section-header span{font-size:12px;color:var(--hint);font-family:var(--mono)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .link-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:border-color .12s,background .12s;position:relative;display:flex;flex-direction:column;gap:8px}
+  .link-card:hover{border-color:var(--border2);background:var(--bg2)}
+  .card-favicon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;font-family:var(--mono)}
+  .card-header{display:flex;align-items:flex-start;gap:8px}
+  .card-title{font-size:13px;font-weight:500;color:var(--text);flex:1;line-height:1.4;word-break:break-word}
+  .card-url{font-family:var(--mono);font-size:11px;color:var(--hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:20px;border:0.5px solid var(--border);color:var(--muted);width:fit-content;margin-top:auto}
+  .card-tag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .card-actions{display:flex;gap:4px;position:absolute;top:10px;right:10px;opacity:0;transition:opacity .12s}
+  .link-card:hover .card-actions{opacity:1}
+  .icon-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--muted);transition:background .1s,color .1s;user-select:none}
+  .icon-btn:hover{background:var(--bg3);color:var(--text)}
+  .icon-btn.del:hover{background:#fee2e2;color:#b91c1c;border-color:#fecaca}
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;color:var(--hint);gap:10px}
+  .empty-icon{font-size:32px;opacity:.4}
+  .empty p{font-size:13px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100}
+  .modal{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--radius);padding:26px;width:430px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+  .modal h3{font-size:16px;font-weight:500;margin-bottom:20px}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+  .field label{font-size:12px;color:var(--muted);font-weight:500}
+  .field input,.field select{padding:9px 11px;border:0.5px solid var(--border2);border-radius:8px;font-size:13px;font-family:var(--sans);color:var(--text);background:var(--bg2);outline:none;transition:border .12s}
+  .field input:focus,.field select:focus{border-color:#6366f1}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+  .btn-cancel{padding:8px 16px;border:0.5px solid var(--border2);border-radius:8px;background:transparent;font-size:13px;font-family:var(--sans);color:var(--muted);cursor:pointer;transition:background .12s}
+  .btn-cancel:hover{background:var(--bg2)}
+  .btn-save{padding:8px 16px;border:none;border-radius:8px;background:var(--text);color:var(--bg);font-size:13px;font-family:var(--sans);font-weight:500;cursor:pointer;transition:opacity .12s}
+  .btn-save:hover{opacity:.82}
+  .new-cat-row{display:flex;gap:6px;padding:8px 10px;margin-top:6px;border-top:0.5px solid var(--border)}
+  .new-cat-input{flex:1;padding:6px 9px;font-size:12px;font-family:var(--sans);border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);outline:none}
+  .new-cat-input:focus{border-color:var(--border2)}
+  .new-cat-btn{padding:6px 10px;font-size:13px;font-family:var(--sans);border:none;border-radius:6px;background:var(--text);color:var(--bg);cursor:pointer;font-weight:500;transition:opacity .12s}
+  .new-cat-btn:hover{opacity:.82}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 18px;border-radius:9px;font-size:13px;font-family:var(--sans);opacity:0;transition:opacity .2s;pointer-events:none;z-index:200;white-space:nowrap}
+  .toast.show{opacity:1}
+  .link-card.dragging{opacity:.35;border-style:dashed}
+  .link-card.drag-over{border-color:#6366f1;border-width:1.5px;background:rgba(99,102,241,.06)}
+  .drag-handle{position:absolute;bottom:8px;right:10px;color:var(--hint);font-size:11px;cursor:grab;opacity:0;transition:opacity .12s;user-select:none;line-height:1}
+  .link-card:hover .drag-handle{opacity:1}
+  .drag-hint{font-size:11px;color:var(--hint);margin-bottom:10px;display:none}
+  .drag-hint.visible{display:block}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1"></rect><rect x="7" y="1" width="4" height="4" rx="1"></rect><rect x="1" y="7" width="4" height="4" rx="1"></rect><rect x="7" y="7" width="4" height="4" rx="1"></rect></svg></div>
+      Links
+    </div>
+    <div class="sidebar-title">Collections</div>
+    <div class="cat-item active" onclick="setCategory(&#39;All&#39;)">
+        <span class="cat-label">
+          <span class="cat-dot" style="background:var(--hint)"></span>
+          All
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          
+          <span class="cat-count">6</span>
+        </span>
+      </div><div class="cat-item" onclick="setCategory(&#39;AI&#39;)">
+        <span class="cat-label">
+          <span class="cat-dot" style="background:#6366f1"></span>
+          AI
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span class="cat-del" onclick="event.stopPropagation();deleteCategory(&#39;AI&#39;)" title="Remove collection">✕</span>
+          <span class="cat-count">4</span>
+        </span>
+      </div><div class="cat-item" onclick="setCategory(&#39;Dev&#39;)">
+        <span class="cat-label">
+          <span class="cat-dot" style="background:#14b8a6"></span>
+          Dev
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span class="cat-del" onclick="event.stopPropagation();deleteCategory(&#39;Dev&#39;)" title="Remove collection">✕</span>
+          <span class="cat-count">2</span>
+        </span>
+      </div>
+    <div class="new-cat-row">
+      <input class="new-cat-input" id="newCatInput" placeholder="New collection…" onkeydown="if(event.key===&#39;Enter&#39;)addCategory()">
+      <button class="new-cat-btn" onclick="addCategory()">+</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input placeholder="Search links…" value="" oninput="setSearch(this.value)">
+      </div>
+      <button class="btn-add" onclick="openModal()">+ Add link</button>
+    </div>
+    <div class="grid-wrap">
+      <div class="section-header">
+        <h2>All</h2>
+        <span>6 links</span>
+      </div>
+      
+      <div class="grid">
+        <div class="link-card" onclick="openLink(&#39;https://anthropic.com&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://anthropic.com&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(1)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(1)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#6366f120;color:#6366f1;border:0.5px solid #6366f130">A</div>
+              <div class="card-title">Anthropic</div>
+            </div>
+            <div class="card-url">anthropic.com</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#6366f1"></span>
+              AI
+            </div>
+          </div><div class="link-card" onclick="openLink(&#39;https://claude.ai&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://claude.ai&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(2)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(2)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#6366f120;color:#6366f1;border:0.5px solid #6366f130">C</div>
+              <div class="card-title">Claude</div>
+            </div>
+            <div class="card-url">claude.ai</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#6366f1"></span>
+              AI
+            </div>
+          </div><div class="link-card" onclick="openLink(&#39;https://github.com&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://github.com&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(3)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(3)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#14b8a620;color:#14b8a6;border:0.5px solid #14b8a630">G</div>
+              <div class="card-title">GitHub</div>
+            </div>
+            <div class="card-url">github.com</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#14b8a6"></span>
+              Dev
+            </div>
+          </div><div class="link-card" onclick="openLink(&#39;https://developer.mozilla.org&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://developer.mozilla.org&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(4)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(4)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#14b8a620;color:#14b8a6;border:0.5px solid #14b8a630">MW</div>
+              <div class="card-title">MDN Web Docs</div>
+            </div>
+            <div class="card-url">developer.mozilla.org</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#14b8a6"></span>
+              Dev
+            </div>
+          </div><div class="link-card" onclick="openLink(&#39;https://www.youtube.com/watch?v=y6D1pOhYzCI&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://www.youtube.com/watch?v=y6D1pOhYzCI&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(5)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(5)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#6366f120;color:#6366f1;border:0.5px solid #6366f130">YV</div>
+              <div class="card-title">youtube.com video</div>
+            </div>
+            <div class="card-url">youtube.com</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#6366f1"></span>
+              AI
+            </div>
+          </div><div class="link-card" onclick="openLink(&#39;https://www.youtube.com/watch?v=BzKXF0T75ps&#39;)">
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl(&#39;https://www.youtube.com/watch?v=BzKXF0T75ps&#39;)" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(6)" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(6)" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:#6366f120;color:#6366f1;border:0.5px solid #6366f130">Y</div>
+              <div class="card-title">youtube.com</div>
+            </div>
+            <div class="card-url">youtube.com</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:#6366f1"></span>
+              AI
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+  
+  </div>
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS=['#6366f1','#14b8a6','#f97316','#ec4899','#84cc16','#3b82f6','#a855f7','#f59e0b','#ef4444','#06b6d4'];
+
+function load(){
+  try{
+    return {
+      links: JSON.parse(localStorage.getItem('lo_links')||'[]'),
+      categories: JSON.parse(localStorage.getItem('lo_cats')||'["All"]'),
+    }
+  }catch{return{links:[],categories:['All']}}
+}
+function save(){
+  localStorage.setItem('lo_links',JSON.stringify(state.links));
+  localStorage.setItem('lo_cats',JSON.stringify(state.categories));
+}
+
+const stored = load();
+let state = {
+  links: stored.links.length ? stored.links : [
+    {id:1,title:'Anthropic',url:'https://anthropic.com',category:'AI'},
+    {id:2,title:'Claude',url:'https://claude.ai',category:'AI'},
+    {id:3,title:'GitHub',url:'https://github.com',category:'Dev'},
+    {id:4,title:'MDN Web Docs',url:'https://developer.mozilla.org',category:'Dev'},
+    {id:5,title:'youtube.com video',url:'https://www.youtube.com/watch?v=y6D1pOhYzCI',category:'AI'},
+    {id:6,title:'youtube.com',url:'https://www.youtube.com/watch?v=BzKXF0T75ps',category:'AI'},
+  ],
+  categories: stored.categories.length > 1 ? stored.categories : ['All','AI','Dev'],
+  activeCategory:'All',
+  search:'',
+  modal:null,
+  editId:null,
+};
+let nextId = state.links.reduce((m,l)=>Math.max(m,l.id),0)+1;
+
+function getColor(cat){
+  const idx=state.categories.filter(c=>c!=='All').indexOf(cat);
+  return COLORS[Math.abs(idx)%COLORS.length];
+}
+function domainOf(url){try{return new URL(url).hostname.replace('www.','')}catch{return url}}
+function initials(title){return title.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?'}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escS(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function filtered(){
+  let links=state.links;
+  if(state.activeCategory!=='All') links=links.filter(l=>l.category===state.activeCategory);
+  if(state.search){
+    const q=state.search.toLowerCase();
+    links=links.filter(l=>l.title.toLowerCase().includes(q)||l.url.toLowerCase().includes(q)||l.category.toLowerCase().includes(q));
+  }
+  return links;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  const cats=state.categories;
+  const links=filtered();
+  app.innerHTML=`
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="7" y="1" width="4" height="4" rx="1"/><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="7" y="7" width="4" height="4" rx="1"/></svg></div>
+      Links
+    </div>
+    <div class="sidebar-title">Collections</div>
+    ${cats.map(cat=>{
+      const count=cat==='All'?state.links.length:state.links.filter(l=>l.category===cat).length;
+      const color=cat==='All'?'var(--hint)':getColor(cat);
+      return `<div class="cat-item${state.activeCategory===cat?' active':''}" onclick="setCategory('${escS(cat)}')">
+        <span class="cat-label">
+          <span class="cat-dot" style="background:${color}"></span>
+          ${escH(cat)}
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          ${cat!=='All'?`<span class="cat-del" onclick="event.stopPropagation();deleteCategory('${escS(cat)}')" title="Remove collection">✕</span>`:''}
+          <span class="cat-count">${count}</span>
+        </span>
+      </div>`
+    }).join('')}
+    <div class="new-cat-row">
+      <input class="new-cat-input" id="newCatInput" placeholder="New collection…" onkeydown="if(event.key==='Enter')addCategory()">
+      <button class="new-cat-btn" onclick="addCategory()">+</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input placeholder="Search links…" value="${escH(state.search)}" oninput="setSearch(this.value)">
+      </div>
+      <button class="btn-add" onclick="openModal()">+ Add link</button>
+    </div>
+    <div class="grid-wrap">
+      <div class="section-header">
+        <h2>${escH(state.activeCategory)}</h2>
+        <span>${links.length} link${links.length!==1?'s':''}</span>
+      </div>
+      ${links.length===0?`<div class="empty"><div class="empty-icon">◻</div><p>No links here yet.</p></div>`:''}
+      ${state.activeCategory==='All'&&links.length>1?`<div class="drag-hint visible">⠿ Drag cards to reorder</div>`:''}
+      <div class="grid" id="link-grid">
+        ${links.map(link=>{
+          const color=getColor(link.category);
+          const draggable=state.activeCategory==='All';
+          return `<div class="link-card" 
+            data-id="${link.id}"
+            ${draggable?'draggable="true"':''}
+            onclick="openLink('${escS(link.url)}')"
+            ${draggable?`ondragstart="onDragStart(event,${link.id})" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${link.id})" ondragend="onDragEnd(event)"`:''}
+          >
+            <div class="card-actions">
+              <div class="icon-btn" onclick="event.stopPropagation();copyUrl('${escS(link.url)}')" title="Copy URL">⎘</div>
+              <div class="icon-btn" onclick="event.stopPropagation();openEditModal(${link.id})" title="Edit">✎</div>
+              <div class="icon-btn del" onclick="event.stopPropagation();deleteLink(${link.id})" title="Delete">✕</div>
+            </div>
+            <div class="card-header">
+              <div class="card-favicon" style="background:${color}20;color:${color};border:0.5px solid ${color}30">${escH(initials(link.title))}</div>
+              <div class="card-title">${escH(link.title)}</div>
+            </div>
+            <div class="card-url">${escH(domainOf(link.url))}</div>
+            <div class="card-tag">
+              <span class="card-tag-dot" style="background:${color}"></span>
+              ${escH(link.category)}
+            </div>
+            ${draggable?'<div class="drag-handle">⠿⠿</div>':''}
+          </div>`
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  ${state.modal?renderModal():''}
+  `;
+}
+
+function renderModal(){
+  const isEdit=state.editId!==null;
+  const link=isEdit?state.links.find(l=>l.id===state.editId):null;
+  const cats=state.categories.filter(c=>c!=='All');
+  return `<div class="modal-overlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3>${isEdit?'Edit link':'Add new link'}</h3>
+      <div class="field"><label>Title</label>
+        <input id="m-title" value="${escH(link?link.title:'')}" placeholder="e.g. Hacker News">
+      </div>
+      <div class="field"><label>URL</label>
+        <input id="m-url" value="${escH(link?link.url:'')}" placeholder="https://..." onblur="autoFillTitle()">
+      </div>
+      <div class="field"><label>Collection</label>
+        <select id="m-cat">
+          ${cats.length?cats.map(c=>`<option${(link&&link.category===c)||(!link&&state.activeCategory===c&&c!=='All')?' selected':''}>${escH(c)}</option>`).join(''):'<option>Uncategorized</option>'}
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveLink()">Save</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.setCategory=function(c){state.activeCategory=c;render()}
+window.setSearch=function(v){state.search=v;render()}
+window.openModal=function(){state.modal=true;state.editId=null;render();setTimeout(()=>document.getElementById('m-title')&&document.getElementById('m-url').focus(),50)}
+window.openEditModal=function(id){state.modal=true;state.editId=id;render()}
+window.closeModal=function(){state.modal=null;state.editId=null;render()}
+window.openLink=function(url){window.open(url,'_blank')}
+window.copyUrl=function(url){navigator.clipboard.writeText(url).then(()=>showToast('URL copied')).catch(()=>showToast(url))}
+window.deleteLink=function(id){state.links=state.links.filter(l=>l.id!==id);save();showToast('Removed');render()}
+window.deleteCategory=function(cat){
+  if(state.links.some(l=>l.category===cat)){showToast('Remove all links from "'+cat+'" first');return}
+  state.categories=state.categories.filter(c=>c!==cat);
+  if(state.activeCategory===cat)state.activeCategory='All';
+  save();render();
+}
+window.autoFillTitle=function(){
+  const t=document.getElementById('m-title'),u=document.getElementById('m-url');
+  if(t&&u&&!t.value.trim()&&u.value.trim()){try{t.value=new URL(u.value).hostname.replace('www.','')}catch{}}
+}
+window.saveLink=function(){
+  const title=(document.getElementById('m-title').value||'').trim();
+  let url=(document.getElementById('m-url').value||'').trim();
+  const cat=document.getElementById('m-cat').value;
+  if(!url){showToast('Enter a URL');return}
+  if(!url.startsWith('http'))url='https://'+url;
+  if(state.editId!==null){
+    const link=state.links.find(l=>l.id===state.editId);
+    if(link){link.title=title||domainOf(url);link.url=url;link.category=cat}
+  } else {
+    state.links.push({id:nextId++,title:title||domainOf(url),url,category:cat});
+    if(state.activeCategory!==cat&&state.activeCategory!=='All')state.activeCategory=cat;
+  }
+  save();closeModal();showToast(state.editId!==null?'Updated':'Saved');
+}
+window.addCategory=function(){
+  const inp=document.getElementById('newCatInput');
+  const v=(inp?inp.value:'').trim();
+  if(v&&!state.categories.includes(v)){state.categories.push(v);state.activeCategory=v;save()}
+  render();
+}
+
+let dragSrcId=null;
+window.onDragStart=function(e,id){
+  dragSrcId=id;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.closest('.link-card').classList.add('dragging'),0);
+}
+window.onDragOver=function(e){
+  e.preventDefault();e.dataTransfer.dropEffect='move';
+  const card=e.target.closest('.link-card');
+  if(card)card.classList.add('drag-over');
+}
+window.onDragLeave=function(e){
+  const card=e.target.closest('.link-card');
+  if(card)card.classList.remove('drag-over');
+}
+window.onDrop=function(e,targetId){
+  e.preventDefault();e.stopPropagation();
+  const card=e.target.closest('.link-card');
+  if(card)card.classList.remove('drag-over');
+  if(dragSrcId===null||dragSrcId===targetId)return;
+  const fromIdx=state.links.findIndex(l=>l.id===dragSrcId);
+  const toIdx=state.links.findIndex(l=>l.id===targetId);
+  if(fromIdx===-1||toIdx===-1)return;
+  const moved=state.links.splice(fromIdx,1)[0];
+  state.links.splice(toIdx,0,moved);
+  save();render();
+}
+window.onDragEnd=function(){
+  dragSrcId=null;
+  document.querySelectorAll('.link-card').forEach(c=>c.classList.remove('dragging','drag-over'));
+}
+
+render();
+</script>
+
+
+</body></html>
